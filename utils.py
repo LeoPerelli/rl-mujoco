@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 DEBUG_STATES = [
-    np.array(
+    torch.tensor(
         [
             1.24769787e00,
             -4.59026476e-03,
@@ -18,7 +18,7 @@ DEBUG_STATES = [
             -4.97261500e-03,
         ]
     ),
-    np.array(
+    torch.tensor(
         [
             1.25450464e00,
             -3.55840387e-03,
@@ -41,18 +41,15 @@ def debug_states(agent, writer, id):
     with torch.no_grad():
 
         for enum, s in enumerate(DEBUG_STATES):
-            mu, std = torch.softmax(
-                agent.actor.forward(s),
-                dim=-1,
-            )
+            mu, std = agent.actor.forward(s)
             writer.add_scalar(
-                f"Debug/Actor mu s{enum}",
-                mu,
+                f"Debug/Actor mu[0] s{enum}",
+                mu[0],
                 id,
             )
 
             if agent.critic is not None:
-                value = agent.critic.forward(s)[0]
+                value = agent.critic.forward(s)
 
                 writer.add_scalar(
                     f"Debug/Critic s{enum}",
