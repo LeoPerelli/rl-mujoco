@@ -2,7 +2,38 @@ import torch
 import numpy as np
 import time
 
-DEBUG_STATES = []
+DEBUG_STATES = [
+    np.array(
+        [
+            1.24769787e00,
+            -4.59026476e-03,
+            -4.83472364e-03,
+            3.13270239e-03,
+            4.12755577e-03,
+            1.06635776e-03,
+            2.29496561e-03,
+            4.36249915e-04,
+            4.35072424e-03,
+            3.15853554e-03,
+            -4.97261500e-03,
+        ]
+    ),
+    np.array(
+        [
+            1.25450464e00,
+            -3.55840387e-03,
+            4.48649447e-03,
+            -1.88168548e-03,
+            -7.66735510e-04,
+            3.27702594e-03,
+            -9.08008636e-04,
+            4.95936877e-04,
+            -4.72440887e-03,
+            2.53513109e-03,
+            3.81433132e-04,
+        ]
+    ),
+]
 
 
 def debug_states(agent, writer, id):
@@ -19,13 +50,6 @@ def debug_states(agent, writer, id):
                 mu,
                 id,
             )
-
-            if s == 0:
-                writer.add_scalar(
-                    f"Debug/Actor std",
-                    std,
-                    id,
-                )
 
             if agent.critic is not None:
                 value = agent.critic.forward(s)[0]

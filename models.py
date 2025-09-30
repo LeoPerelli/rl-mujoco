@@ -36,6 +36,6 @@ class Regressor(nn.Module):
         x = self.mlp(obs)
         if self.network_type == "actor":
             mu = self.mu(x)
-            return mu, torch.exp(self.log_std)
+            return mu, torch.exp(torch.clip(self.log_std, max=0.5))
         else:
             return x.squeeze(-1)
