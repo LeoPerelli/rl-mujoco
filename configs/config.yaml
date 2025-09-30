@@ -1,0 +1,29 @@
+
+experiment_name: "ppo_base_"
+
+env:
+  name: "Hopper-v5"
+  n: 16
+  tot_steps: 1000000
+  policy_update_steps: 2048
+  debug_steps: 1000
+  eval_steps: 2048
+
+agent:
+  name: PPOBaseline
+  agent_args:
+    actor_lr: 1.e-4
+    critic_lr: 1.e-4
+    gamma: 0.99
+    lamda: 0.95
+    eps: 0.2
+    batch_size: 64
+    epochs: 5
+    actor_hidden_layers: [64, 64]
+    critic_hidden_layers: [64, 64]
+    c_v: 0.5
+    c_e: 0.01
+
+
+
+  
