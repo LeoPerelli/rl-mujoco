@@ -111,8 +111,7 @@ if __name__ == "__main__":
 
 # TODO
 # add device
-# fix the regression target for the value network, which should be the advantage + v or something else.
 # Advantage normalization (mean 0, std 1 per batch).
 # Entropy bonus (encourages exploration).
 # Reward normalization (optional, but often stabilizes).
-# clamp log_std
+# advantages = (advantages - advantages.mean()) / (advantages.std(unbiased=False) + 1e-8)

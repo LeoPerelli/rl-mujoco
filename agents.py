@@ -4,7 +4,7 @@ from models import Regressor
 from utils import RLDataset
 from torch.distributions import Categorical
 
-EPS = 1e-2
+EPS = 1e-4
 
 
 class PPOBaseline:
@@ -66,9 +66,9 @@ class PPOBaseline:
             dataset, batch_size=self.batch_size, shuffle=True
         )
 
-        self.old_actor.load_state_dict(self.actor.state_dict().copy())
+        self.old_actor.load_state_dict(self.actor.state_dict())
 
-        return self.ppo_optimization_loop(dataloader)
+        self.ppo_optimization_loop(dataloader)
 
     def ppo_optimization_loop(self, dataloader):
 
@@ -146,14 +146,15 @@ class PPOBaseline:
         r = torch.exp(action_logprobs - old_action_logprobs)
         clip_loss = -torch.min(
             r * advantages.detach().unsqueeze(1),
-            torch.clip(
-                r * advantages.detach().unsqueeze(1), 1 - self.eps, 1 + self.eps
-            ),
+            advantages.detach().unsqueeze(1)
+            * torch.clip(r, 1 - self.eps, 1 + self.eps),
         ).mean()
-        entropy_loss = -torch.distributions.Normal(mus, stds).entropy().mean()
+        entropy_loss = (
+            torch.distributions.Normal(mus, stds).entropy().sum(dim=-1).mean()
+        )
 
         return (
-            clip_loss + self.c_v * mse_loss + self.c_e * entropy_loss,
+            clip_loss + self.c_v * mse_loss - self.c_e * entropy_loss,
             clip_loss,
             mse_loss,
             entropy_loss,
@@ -170,20 +171,23 @@ class PPOBaseline:
 
         # i go back through the T timesteps
         for i in reversed(range(D.shape[0])):
-            gae_vec = self.gamma * self.lamda * gae_vec + D[i]
-            A[i] = gae_vec
             gae_vec = (
                 gae_vec * (1 - tracker.terminateds[i]) * (1 - tracker.truncateds[i])
-            )  # applies a mask to stop the accumulation at the boundaries of episodes
+            )  # applies a mask to stop the accumulation at the boundaries of episodes. since i go backwards in time, the flag is true for the last time step of the episode, hence i must apply the mask before updating the advantage, rather than after.
+            gae_vec = self.gamma * self.lamda * gae_vec + D[i]
+            A[i] = gae_vec
 
         return A, V_t
 
     def get_logprob(self, mus, stds, actions):
 
         actions_x = torch.atanh(torch.clip(actions, -1 + EPS, 1 - EPS))
-        logprob_actions_x = torch.distributions.Normal(mus, stds).log_prob(actions_x)
+        logprob_actions_x = (
+            torch.distributions.Normal(mus, stds).log_prob(actions_x).sum(dim=-1)
+        )
         modifier = 1 - torch.clip(torch.tanh(actions_x), -1 + EPS, 1 - EPS).square()
-        logprob_actions = torch.log(modifier) + logprob_actions_x
+        logprob_actions = logprob_actions_x - torch.log(modifier + EPS).sum(dim=-1)
+        # minus because its the derivative of the inverse, which for tanh is 1/(1-x^2)
 
         return logprob_actions
 
