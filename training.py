@@ -79,7 +79,7 @@ def main_loop(args):
         states = states_
 
         if global_step % config["env"]["debug_steps"] == 0 and global_step > 0:
-            debug_states(agent, writer, global_step)
+            debug_states(agent, writer, global_step, config["env"]["name"])
 
         if global_step % config["env"]["eval_steps"] == 0 and global_step > 0:
 
@@ -100,7 +100,7 @@ def main_loop(args):
                 agent, eval_env, 5, writer, global_step
             )
 
-    print(f"Total episodes: {tracker.running_episodes}")
+    # print(f"Total episodes: {tracker.running_episodes}")
 
 
 if __name__ == "__main__":
@@ -112,6 +112,8 @@ if __name__ == "__main__":
 # TODO
 # add device
 # Advantage normalization (mean 0, std 1 per batch).
-# Entropy bonus (encourages exploration).
-# Reward normalization (optional, but often stabilizes).
 # advantages = (advantages - advantages.mean()) / (advantages.std(unbiased=False) + 1e-8)
+# measure variance and see it is decreased by using advantages
+# compute confidence intervals for the runs, compare with baseline paper on number of samples, final performance, etc
+# Entropy bonus (encourages exploration).
+# any cool findings from looking at the plots? mse prediction error, entropy bonus, etc? losses balanced?

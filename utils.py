@@ -2,45 +2,48 @@ import torch
 import numpy as np
 import time
 
-DEBUG_STATES = [
-    torch.tensor(
-        [
-            1.24769787e00,
-            -4.59026476e-03,
-            -4.83472364e-03,
-            3.13270239e-03,
-            4.12755577e-03,
-            1.06635776e-03,
-            2.29496561e-03,
-            4.36249915e-04,
-            4.35072424e-03,
-            3.15853554e-03,
-            -4.97261500e-03,
-        ]
-    ),
-    torch.tensor(
-        [
-            1.25450464e00,
-            -3.55840387e-03,
-            4.48649447e-03,
-            -1.88168548e-03,
-            -7.66735510e-04,
-            3.27702594e-03,
-            -9.08008636e-04,
-            4.95936877e-04,
-            -4.72440887e-03,
-            2.53513109e-03,
-            3.81433132e-04,
-        ]
-    ),
-]
+DEBUG_STATES = {
+    "Hopper-v5": [
+        torch.tensor(
+            [
+                1.24769787e00,
+                -4.59026476e-03,
+                -4.83472364e-03,
+                3.13270239e-03,
+                4.12755577e-03,
+                1.06635776e-03,
+                2.29496561e-03,
+                4.36249915e-04,
+                4.35072424e-03,
+                3.15853554e-03,
+                -4.97261500e-03,
+            ]
+        ),
+        torch.tensor(
+            [
+                1.25450464e00,
+                -3.55840387e-03,
+                4.48649447e-03,
+                -1.88168548e-03,
+                -7.66735510e-04,
+                3.27702594e-03,
+                -9.08008636e-04,
+                4.95936877e-04,
+                -4.72440887e-03,
+                2.53513109e-03,
+                3.81433132e-04,
+            ]
+        ),
+    ],
+    "HalfCheetah-v5": [],
+}
 
 
-def debug_states(agent, writer, id):
+def debug_states(agent, writer, id, env_name):
 
     with torch.no_grad():
 
-        for enum, s in enumerate(DEBUG_STATES):
+        for enum, s in enumerate(DEBUG_STATES[env_name]):
             mu, std = agent.actor.forward(s)
             writer.add_scalar(
                 f"Debug/Actor mu[0] s{enum}",
@@ -58,7 +61,7 @@ def debug_states(agent, writer, id):
                 )
 
 
-def evaluate_agent(agent, env, num_episodes, writer, global_step):
+def evaluate_agent(agent, env, num_episodes, writer=None, global_step=None):
     """
     Evaluate the agent's performance with epsilon=0 (no exploration).
     """
@@ -89,8 +92,10 @@ def evaluate_agent(agent, env, num_episodes, writer, global_step):
     avg_reward = sum(total_rewards) / len(total_rewards)
     avg_length = sum(total_lengths) / len(total_lengths)
 
-    writer.add_scalar("Evaluation/Average Reward", avg_reward, global_step)
-    writer.add_scalar("Evaluation/Average Episode Length", avg_length, global_step)
+    if global_step:
+        writer.add_scalar("Evaluation/Average Reward", avg_reward, global_step)
+        writer.add_scalar("Evaluation/Average Episode Length", avg_length, global_step)
+
     print(
         f"Evaluation results - Avg reward: {avg_reward:.2f}, Avg episode length: {avg_length:.2f}. Time elapsed: {int(time.time() - start)}"
     )
@@ -145,10 +150,6 @@ class Tracker:
 
     def write_stats(self, global_step):
 
-        # episode_length, episode_return = self.compute_episode_stats()
-
-        # self.writer.add_scalar("Episode/Return", episode_return, global_step)
-        # self.writer.add_scalar("Episode/Length", episode_length, global_step)
         self.writer.add_scalar("Episode/Loss", self.loss, global_step)
         self.writer.add_scalar("Episode/clip_loss", self.clip_loss, global_step)
         self.writer.add_scalar("Episode/mse_loss", self.mse_loss, global_step)
@@ -172,23 +173,6 @@ class Tracker:
     def compute_episode_stats(self):
 
         return
-
-        dones = torch.logical_or(self.terminateds, self.truncateds)
-        ep_ids = torch.cumsum(dones, dim=0)
-        max_id = ep_ids.max(dim=0).item()
-        valid_mask = torch.zeros_like(ep_ids)
-        valid_mask[ep_ids > 0 & ep_ids < max_id.expand(ep_ids.shape)] = True
-
-        # Aggregate
-        ep_returns = torch.zeros(max_id + 1).scatter_add(0, ep_ids, flat_rewards)
-        ep_lengths = torch.zeros(max_id + 1).scatter_add(
-            0, ep_ids, torch.ones_like(flat_rewards)
-        )
-
-        ep_returns = ep_returns[valid_mask]
-        ep_lengths = ep_lengths[valid_mask]
-
-        return ep_returns.mean().item(), ep_lengths.float().mean().item()
 
 
 class RLDataset(torch.utils.data.Dataset):
