@@ -1,10 +1,10 @@
 import subprocess
 
 configs = [
-    ["python", "/Users/lperelli/rl-mujoco/training.py"],
-    ["python", "/Users/lperelli/rl-mujoco/training.py"],
-    ["python", "/Users/lperelli/rl-mujoco/training.py"],
-    ["python", "/Users/lperelli/rl-mujoco/training.py"],
+    # ["python", "/Users/lperelli/rl-mujoco/training.py"],
+    # ["python", "/Users/lperelli/rl-mujoco/training.py"],
+    # ["python", "/Users/lperelli/rl-mujoco/training.py"],
+    # ["python", "/Users/lperelli/rl-mujoco/training.py"],
     [
         "python",
         "/Users/lperelli/rl-mujoco/training.py",

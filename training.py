@@ -110,10 +110,7 @@ if __name__ == "__main__":
 
 
 # TODO
-# add device
-# Advantage normalization (mean 0, std 1 per batch).
-# advantages = (advantages - advantages.mean()) / (advantages.std(unbiased=False) + 1e-8)
-# measure variance and see it is decreased by using advantages
-# compute confidence intervals for the runs, compare with baseline paper on number of samples, final performance, etc
-# Entropy bonus (encourages exploration).
-# any cool findings from looking at the plots? mse prediction error, entropy bonus, etc? losses balanced?
+# add video of the policies
+# compare with stable baselines code?
+# how does PPO differ from REINFORCE in terms of the ratio of policy(action)/old_policy(action)? reinforce doesnt seem to keep track of the old_policy?
+# the critic is trained based on its own advantage estimates + the state value function. is this right?

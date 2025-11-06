@@ -25,6 +25,7 @@ class PPOBaseline:
         tracker,
         c_v=1.0,
         c_e=1.0,
+        normalise_advantages=False,
     ):
 
         self.actor = Regressor(
@@ -51,17 +52,22 @@ class PPOBaseline:
         self.c_e = c_e
         self.tracker = tracker
         self.eval_mode = False
+        self.normalise_advantages = normalise_advantages
 
     def update_policy(self):
 
         A, V_t = self.compute_GAE(self.tracker)
 
-        dataset = RLDataset(
-            [t for tt in self.tracker.states.unbind() for t in tt],
-            [t for tt in self.tracker.actions.unbind() for t in tt],
-            [t for tt in A.unbind() for t in tt],
-            [t for tt in (A + V_t).unbind() for t in tt],
-        )
+        states = [t for tt in self.tracker.states.unbind() for t in tt]
+        actions = [t for tt in self.tracker.actions.unbind() for t in tt]
+        if self.normalise_advantages == "batch":
+            A_norm = (A - A.mean()) / (A.std() + 1e-8)
+            advantages = [t for tt in A_norm.unbind() for t in tt]
+        else:
+            advantages = [t for tt in A.unbind() for t in tt]
+        return_estimates = [t for tt in (A + V_t).unbind() for t in tt]
+
+        dataset = RLDataset(states, actions, advantages, return_estimates)
         dataloader = torch.utils.data.DataLoader(
             dataset, batch_size=self.batch_size, shuffle=True
         )
@@ -81,6 +87,11 @@ class PPOBaseline:
         grad_norm_critic = 0
         for _ in range(self.epochs):
             for i, batch in enumerate(dataloader):
+
+                if self.normalise_advantages == "minibatch":
+                    batch["advantages"] = (
+                        batch["advantages"] - batch["advantages"].mean()
+                    ) / (batch["advantages"].std() + 1e-8)
 
                 self.actor_optimiser.zero_grad()
                 self.critic_optimiser.zero_grad()

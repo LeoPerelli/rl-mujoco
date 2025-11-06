@@ -1,5 +1,5 @@
 
-experiment_name: "ppo_base_"
+experiment_name: "ppo_base_with_normalisation_batch"
 
 env:
   name: "Hopper-v5"
@@ -23,6 +23,7 @@ agent:
     critic_hidden_layers: [64, 64]
     c_v: 0.5
     c_e: 0.01
+    normalise_advantages: "batch"
 
 
 

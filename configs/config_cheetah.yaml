@@ -1,5 +1,5 @@
 
-experiment_name: "ppo_base_cheetah"
+experiment_name: "ppo_base_cheetah_batch_normalisation"
 
 env:
   name: "HalfCheetah-v5"
@@ -23,6 +23,7 @@ agent:
     critic_hidden_layers: [64, 64]
     c_v: 0.5
     c_e: 0.01
+    normalise_advantages: "batch"
 
 
 
