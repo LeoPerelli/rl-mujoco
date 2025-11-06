@@ -116,8 +116,8 @@ Therefore, it is important to manage the start/end boundaries, as well as the in
 In our case, the one-step TD errors are computed in parallel as they can be obtained through matrix operations, while the generalised advantage estimator requires looping on the matrix backwards in time to accumulate and discount the one-step TD errors, resetting the accumulation when episode boundaries are hit.
 
 # Results
-<video width="400" controls>
-  <source src="images/policy_example.mp4" type="video/quicktime">
+<video controls>
+  <source src="images/policy_example.mp4" type="video/mp4">
 </video>
 
 
