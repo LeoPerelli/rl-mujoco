@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
 
 # TODO
-# add video of the policies
 # compare with stable baselines code?
-# how does PPO differ from REINFORCE in terms of the ratio of policy(action)/old_policy(action)? reinforce doesnt seem to keep track of the old_policy?
-# the critic is trained based on its own advantage estimates + the state value function. is this right?
+# add clip objective for Value function too? (  cliprange: 0.2
+#   cliprange_vf: -1)
+# 10 epochs

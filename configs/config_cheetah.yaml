@@ -1,10 +1,10 @@
 
-experiment_name: "ppo_base_cheetah_batch_normalisation"
+experiment_name: "ppo_base_cheetah_batch_normalisation_long"
 
 env:
   name: "HalfCheetah-v5"
   n: 16
-  tot_steps: 1000000
+  tot_steps: 10000000
   policy_update_steps: 2048
   debug_steps: 1000
   eval_steps: 2048

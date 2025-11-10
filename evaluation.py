@@ -9,10 +9,16 @@ import yaml
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-experiment_dir = "/Users/lperelli/rl-mujoco/experiments/ppo_base_1759333187"
-# step = 413696
-step = 997376
-# step = 94208
+experiment_dir = "/Users/lperelli/rl-mujoco/experiments/ppo_base_cheetah_batch_normalisation_long1762542592"
+# step = 2048
+# step = 206848
+# step = 307200
+# step = 372736
+# step = 348160
+# step = 434176
+# step = 557056
+# step = 999424
+step = 3180544
 
 critic_path = experiment_dir + f"/critic_ckpt_{step}.pth"
 policy_path = experiment_dir + f"/policy_ckpt_{step}.pth"

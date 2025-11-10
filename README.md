@@ -125,18 +125,18 @@ The only difference we test in terms of hyperparameters is the effect of normali
 We run for 1 million timesteps in each environment using 16 parallel environments, which on a M1 Pro Mac require roughly 50 minutes.
 The policy is updated every 2048 steps, with 5 training epochs using the Adam optimiser.
 Below are results for the Hopper runs, where the white lines use advantage normalisation at batch level, while the red dont use advantage normalisation:
-<img src="images/returns.png" alt="drawing" width="600" style="display:block; margin:auto;"/>:
+<img src="images/returns.png" alt="drawing" width="600" style="display:block; margin:auto;"/>
 
 We can further compare the effect of normalisation on the clip and entropy losses:
-<img src="images/clip_loss.png" alt="drawing" width="400"/>:
-<img src="images/entropy_loss.png" alt="drawing" width="400"/>:
-<img src="images/mse_loss.png" alt="drawing" width="400"/>:
+<img src="images/clip_loss.png" alt="drawing" width="400"/>
+<img src="images/entropy_loss.png" alt="drawing" width="400"/>
+<img src="images/mse_loss.png" alt="drawing" width="400"/>
 
 We see that:
 - for Hopper, the five runs achieve the following maximum scores roughly: [3000, 2500, 2000, 1000, 500], with the high-performing runs having a sudden and huge increase in performance after a long time of stagnation. This suggests that the agent wasnt exploring enough until that point? 
-- for Half-Cheetah, the trends are similar but the scores are lower, with the best run reaching roughly 1500 as maximum.
 - the sudden jumps in performance are coupled with a jump in the critic MSE loss, likely because the critic has to catch up with the state values induced by the improved policy. For Hopper, the initial spike is "absorbed" (the MSE loss drops shortly after) but this does not hold for subsequent spikes. Thus it seems the critic lags behind the policy for quite a while?
 - the mini-batch-level advantage normalisation seems to damage the policy, potentially removing the noise which was causing the exploration or simply leading to small gradients. This can be tested by raising the learning rate and raising the coefficient for the entropy bonus.
 - the batch-level advantage normalisation instead yields a faster and seemingly more stable policy (meaning: across multiple runs, results are more stable). This is interesting, theory-wise i am not fully convinced by either of the two normalisations as the rescaling of advantages can change sign of some of them, meaning it could change the direction of the gradients too.
 Other interesting implementation details such as value function clipping (similar to the PPO objective for the policy updates), orthogonal initialization of neural networks and other types of normalization are explored in: https://arxiv.org/pdf/2005.12729.
 
+For HalfCheetah, we found lower scores overall. There are 3 main behaviours seen in the samples: (i) the cheetah stays still without falling for the full duration of the evaluation, (ii) the cheetah starts doing weird things, like ending on its back or proceeding with its face on the ground, and (iii) the cheetah proceeds forward as expected. I didnt have time to debug these issues in depth, but comparing with Stable Baselines 3 I dont see clear bugs.
